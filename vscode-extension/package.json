@@ -1,0 +1,75 @@
+{
+  "name": "readback-reader",
+  "displayName": "Readback Reader",
+  "description": "Read selected text aloud in VS Code using free macOS voices.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:readback.readSelection",
+    "onCommand:readback.readClipboard",
+    "onCommand:readback.stop",
+    "onCommand:readback.chooseSpeed",
+    "onCommand:readback.chooseVoice"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "readback.readSelection",
+        "title": "Readback: Read Selection"
+      },
+      {
+        "command": "readback.readClipboard",
+        "title": "Readback: Read Clipboard"
+      },
+      {
+        "command": "readback.stop",
+        "title": "Readback: Stop Reading"
+      },
+      {
+        "command": "readback.chooseSpeed",
+        "title": "Readback: Choose Speed"
+      },
+      {
+        "command": "readback.chooseVoice",
+        "title": "Readback: Choose Voice"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "readback.readSelection",
+        "key": "alt+cmd+r",
+        "mac": "alt+cmd+r",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "readback.stop",
+        "key": "alt+cmd+s",
+        "mac": "alt+cmd+s"
+      }
+    ],
+    "configuration": {
+      "title": "Readback Reader",
+      "properties": {
+        "readback.voice": {
+          "type": "string",
+          "default": "",
+          "description": "macOS voice name to use. Leave blank for the system default."
+        },
+        "readback.speed": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0.5,
+          "maximum": 2,
+          "description": "Speech speed multiplier."
+        }
+      }
+    }
+  }
+}

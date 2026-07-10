@@ -1,0 +1,11 @@
+.DS_Store
+.build/
+dist/
+DerivedData/
+*.xcuserstate
+*.swp
+
+node_modules/
+*.vsix
+npm-debug.log*
+
