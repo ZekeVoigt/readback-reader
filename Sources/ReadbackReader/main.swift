@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import Carbon
+import ServiceManagement
 import SwiftUI
 
 private let appName = "Readback Reader"
@@ -40,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
         configureVoices()
         configureStatusItem()
         registerHotKeys()
+        enableLaunchAtLoginIfNeeded()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -150,6 +152,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
 
         menu.addItem(.separator())
 
+        let launchAtLogin = NSMenuItem(
+            title: "Launch at Login",
+            action: #selector(toggleLaunchAtLoginAction),
+            keyEquivalent: ""
+        )
+        launchAtLogin.state = launchAtLoginEnabled ? .on : .off
+        menu.addItem(launchAtLogin)
+
         menu.addItem(NSMenuItem(title: "How to Use", action: #selector(showHelpAction), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Open Accessibility Settings", action: #selector(openAccessibilitySettingsAction), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Quit \(appName)", action: #selector(quitAction), keyEquivalent: "q"))
@@ -223,6 +233,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
 
     @objc private func quitAction() {
         NSApp.terminate(nil)
+    }
+
+    @objc private func toggleLaunchAtLoginAction() {
+        do {
+            if launchAtLoginEnabled {
+                try SMAppService.mainApp.unregister()
+            } else {
+                try SMAppService.mainApp.register()
+            }
+            rebuildMenu()
+        } catch {
+            showTransientMessage("Could not update Launch at Login. Open the app from /Applications and try again.")
+        }
+    }
+
+    private var launchAtLoginEnabled: Bool {
+        SMAppService.mainApp.status == .enabled
+    }
+
+    private func enableLaunchAtLoginIfNeeded() {
+        guard !launchAtLoginEnabled else { return }
+
+        do {
+            try SMAppService.mainApp.register()
+            rebuildMenu()
+        } catch {
+            // Registration can fail while running from a build folder. The menu item remains available.
+        }
     }
 
     private func readSelectedText() {

@@ -55,6 +55,15 @@ open "dist/Readback Reader.app"
 
 You will see `Readback` in the macOS menu bar.
 
+For a normal daily installation, build and install it in `/Applications`:
+
+```sh
+./scripts/build-app.sh --install
+open "/Applications/Readback Reader.app"
+```
+
+Readback Reader enables `Launch at Login` automatically the first time it is opened from `/Applications`. You can turn that setting off or on from the menu-bar menu. Because the app is a menu-bar utility, it stays out of the Dock while it is running.
+
 ## Permissions
 
 For `Option-Command-R` to read selected text, macOS needs Accessibility permission because the app simulates `Command-C`.

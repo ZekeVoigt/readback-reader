@@ -43,3 +43,10 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 PLIST
 
 echo "$APP_DIR"
+
+if [[ "${1:-}" == "--install" ]]; then
+  INSTALL_DIR="/Applications/Readback Reader.app"
+  rm -rf "$INSTALL_DIR"
+  cp -R "$APP_DIR" "$INSTALL_DIR"
+  echo "$INSTALL_DIR"
+fi

@@ -15,7 +15,8 @@ let package = Package(
             name: "ReadbackReader",
             linkerSettings: [
                 .linkedFramework("AppKit"),
-                .linkedFramework("Carbon")
+                .linkedFramework("Carbon"),
+                .linkedFramework("ServiceManagement")
             ]
         )
     ]

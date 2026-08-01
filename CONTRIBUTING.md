@@ -10,6 +10,12 @@ Build the macOS menu-bar app:
 ./scripts/build-app.sh
 ```
 
+Install the app in `/Applications` so macOS can launch it at login:
+
+```sh
+./scripts/build-app.sh --install
+```
+
 Run it:
 
 ```sh
