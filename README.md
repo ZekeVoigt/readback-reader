@@ -64,6 +64,8 @@ open "/Applications/Readback Reader.app"
 
 Readback Reader enables `Launch at Login` automatically the first time it is opened from `/Applications`. You can turn that setting off or on from the menu-bar menu. Because the app is a menu-bar utility, it stays out of the Dock while it is running.
 
+The build script locally signs the app bundle with its fixed identifier so macOS can keep its Accessibility permission attached when the app is rebuilt.
+
 ## Permissions
 
 For `Option-Command-R` to read selected text, macOS needs Accessibility permission because the app simulates `Command-C`.

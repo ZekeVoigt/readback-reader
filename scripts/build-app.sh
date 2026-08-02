@@ -42,6 +42,11 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
 </plist>
 PLIST
 
+# Keep the app's designated requirement stable so macOS can remember Accessibility permission across rebuilds.
+codesign --force --deep --sign - \
+  --requirements '=designated => identifier "local.readback.reader"' \
+  "$APP_DIR"
+
 echo "$APP_DIR"
 
 if [[ "${1:-}" == "--install" ]]; then

@@ -373,7 +373,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
         alert.informativeText = """
         macOS needs Accessibility permission before Readback Reader can copy highlighted text from other apps.
 
-        Open Accessibility settings, enable Readback Reader, then quit and reopen Readback Reader.
+        Open Accessibility settings and make sure the Readback Reader entry for /Applications/Readback Reader.app is enabled. If it is already on, turn it off and back on once, then quit and reopen Readback Reader.
         """
         alert.addButton(withTitle: "Open Settings")
         alert.addButton(withTitle: "Use Clipboard Instead")
