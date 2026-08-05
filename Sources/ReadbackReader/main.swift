@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
     private var speed: Double = 1.0
     private var lastText: String = ""
     private var isPaused = false
+    private var serviceReadSucceeded = false
     private var hotKeyRefs: [EventHotKeyRef?] = []
 
     private let speedValues: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
@@ -40,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
         loadPreferences()
         configureVoices()
         configureStatusItem()
+        configureServices()
         registerHotKeys()
         enableLaunchAtLoginIfNeeded()
     }
@@ -100,6 +102,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem?.button?.title = "Readback"
         rebuildMenu()
+    }
+
+    private func configureServices() {
+        NSApp.servicesProvider = self
+        NSApp.registerServicesMenuSendTypes([.string], returnTypes: [])
+        NSUpdateDynamicServices()
     }
 
     private func rebuildMenu() {
@@ -264,11 +272,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
     }
 
     private func readSelectedText() {
-        guard accessibilityPermissionGranted(prompt: true) else {
-            showAccessibilityPermissionAlert()
+        if readSelectionUsingService() {
             return
         }
 
+        // Some apps do not participate in Services. Keep the legacy copy path as a silent fallback.
+        readSelectionUsingClipboard()
+    }
+
+    private func readSelectionUsingService() -> Bool {
+        for serviceName in ["Readback Reader/Read Selection", "Read Selection"] {
+            serviceReadSucceeded = false
+            let pasteboard = NSPasteboard.withUniqueName()
+            let performed = NSPerformService(serviceName, pasteboard)
+            if performed && serviceReadSucceeded {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    @objc(readSelectionService:userData:error:)
+    private func readSelectionService(
+        _ pasteboard: NSPasteboard,
+        userData: String?,
+        error: UnsafeMutablePointer<NSString?>
+    ) {
+        let text = pasteboard.string(forType: .string)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !text.isEmpty else {
+            error.pointee = "No text was selected." as NSString
+            return
+        }
+
+        serviceReadSucceeded = true
+        speak(text)
+    }
+
+    private func readSelectionUsingClipboard() {
         let pasteboard = NSPasteboard.general
         let previousClipboard = pasteboard.string(forType: .string)
 
@@ -302,7 +343,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
             }
 
             self.restoreClipboard(previousClipboard)
-            self.showTransientMessage("I could not read the selected text. Try copying it and choosing Read Clipboard.")
+            self.showStatusMessage("No selection")
         }
     }
 
@@ -359,27 +400,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSSpeechSynthesizerDel
         alert.runModal()
     }
 
-    private func accessibilityPermissionGranted(prompt: Bool) -> Bool {
-        let options = [
-            kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt
-        ] as CFDictionary
-
-        return AXIsProcessTrustedWithOptions(options)
-    }
-
-    private func showAccessibilityPermissionAlert() {
-        let alert = NSAlert()
-        alert.messageText = "Allow Readback Reader"
-        alert.informativeText = """
-        macOS needs Accessibility permission before Readback Reader can copy highlighted text from other apps.
-
-        Open Accessibility settings and make sure the Readback Reader entry for /Applications/Readback Reader.app is enabled. If it is already on, turn it off and back on once, then quit and reopen Readback Reader.
-        """
-        alert.addButton(withTitle: "Open Settings")
-        alert.addButton(withTitle: "Use Clipboard Instead")
-
-        if alert.runModal() == .alertFirstButtonReturn {
-            openAccessibilitySettings()
+    private func showStatusMessage(_ message: String) {
+        statusItem?.button?.title = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.statusItem?.button?.title = "Readback"
         }
     }
 

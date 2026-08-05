@@ -8,7 +8,7 @@ The project also includes a lightweight local VS Code extension prototype.
 
 ## Features
 
-- Read selected text with `Option-Command-R`
+- Read selected text with `Option-Command-R` through macOS Services
 - Stop reading with `Option-Command-S`
 - Read the clipboard from the menu
 - Choose one of four curated macOS voices
@@ -68,7 +68,9 @@ The build script locally signs the app bundle with its fixed identifier so macOS
 
 ## Permissions
 
-For `Option-Command-R` to read selected text, macOS needs Accessibility permission because the app simulates `Command-C`.
+`Option-Command-R` first uses macOS Services to receive the selected text directly. This avoids the Accessibility permission prompt in apps that support Services.
+
+For older apps that do not participate in Services, the app silently falls back to simulating `Command-C`. That fallback may need Accessibility permission.
 
 If the hotkey does not read selected text, go to:
 

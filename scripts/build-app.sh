@@ -38,6 +38,25 @@ cat > "$APP_DIR/Contents/Info.plist" <<'PLIST'
   <true/>
   <key>NSHumanReadableCopyright</key>
   <string>Built locally for personal use.</string>
+  <key>NSServices</key>
+  <array>
+    <dict>
+      <key>NSMenuItem</key>
+      <dict>
+        <key>default</key>
+        <string>Readback Reader/Read Selection</string>
+      </dict>
+      <key>NSMessage</key>
+      <string>readSelectionService</string>
+      <key>NSPortName</key>
+      <string>Readback Reader</string>
+      <key>NSSendTypes</key>
+      <array>
+        <string>public.utf8-plain-text</string>
+        <string>NSStringPboardType</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>
 PLIST
